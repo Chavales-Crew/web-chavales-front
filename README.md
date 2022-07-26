@@ -1,2 +1,2 @@
 # web-chavales-front
-Frontend web de chavales crew
+Frontend web de Chavales Crew
