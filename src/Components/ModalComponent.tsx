@@ -1,13 +1,16 @@
 import React from "react";
 
+interface ModalComponentProps {
+  show: boolean;
+  setShow: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-const ModalComponent = () => {
+const ModalComponent = ({ show, setShow }: ModalComponentProps) => {
+  const display = show ? "block" : "none";
   return (
     <div>
-
-
-      <div className="card">
-        <div className="modal-box">
+      <div className="card" style={{ display }}>
+        <div className="modal-box mx-auto">
           <h3 className="font-bold text-lg">
             Congratulations random Internet user!
           </h3>
@@ -16,7 +19,11 @@ const ModalComponent = () => {
             use Wikipedia for free!
           </p>
           <div className="modal-action">
-            <label htmlFor="my-modal-6" className="btn">
+            <label
+              onClick={() => setShow(false)}
+              htmlFor="my-modal-6"
+              className="btn"
+            >
               Yay!
             </label>
           </div>
