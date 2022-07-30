@@ -1,6 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { Link } from "react-router-dom";
 
 function App() {
   return (
@@ -8,16 +9,17 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Chavales Crew¡¡¡
+          Where to?
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+        <nav
+          style={{
+            borderBottom: "solid 1px",
+            paddingBottom: "1rem",
+          }}
         >
-          Learn React
-        </a>
+          <Link to="/second">Second Page</Link> |{" "}
+          <Link to="/third">Third Page</Link>
+        </nav>
       </header>
     </div>
   );
