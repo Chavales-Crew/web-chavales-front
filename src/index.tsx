@@ -9,16 +9,14 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 root.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="second" element={<SecondPage />} />
-        <Route path="third" element={<ThirdPage />} />
-        <Route path="discord" element={<Discord/>}/>
-      </Routes>
-    </BrowserRouter>
-  </React.StrictMode>
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="second" element={<SecondPage />} />
+      <Route path="third" element={<ThirdPage />} />
+      <Route path="discord" element={<Discord />} />
+    </Routes>
+  </BrowserRouter>
 );
 
 // BrowserRouter: connects the app to the browser URL.
