@@ -1,56 +1,94 @@
-import React, { useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom';
+import axios from "axios";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
+const LOGIN_URL = process.env.REACT_APP_DISCORD_OAUTH_URL;
+const API_URL = process.env.REACT_APP_BACKEND_URL;
 
-
-const DiscordOauth = () => {
-    /* const DISCORD_CLIENT_ID = "1004206497493946398"
-    const DISCORD_CLIENT_SECRET = "-XkFmmvC-kdwoPFeBvjdQQclYASuVrMc" */
-    
-    
-
-    /* const DiscordOauth2 = require("discord-oauth2");
-    const oauth = new DiscordOauth2({
-        clientId: DISCORD_CLIENT_ID,
-        clientSecret: DISCORD_CLIENT_SECRET,
-        redirectUri: "http://localhost:3000/discord",
-    });
-
-    oauth.tokenRequest({
-        // clientId, clientSecret and redirectUri are omitted, as they were already set on the class constructor
-        refreshToken: "D43f5y0ahjqew82jZ4NViEr2YafMKhue",
-        grantType: "refresh_token",
-        scope: ["identify", "email", "guilds"],
-    }).then((response:object) => console.log(response)); */
-    
+interface AuthData {
+  access_token: string;
+  expires_in: number;
+  refresh_token: string;
+  scope: string;
+  token_type: string;
 }
-
 
 const Discord = () => {
+  const [authData, setAuthData] = useState<AuthData | null>(null);
+  const [userData, setUserData] = useState<any>({});
+  const [dataLoaded, setDataLoaded] = useState(false);
   const [searchParams] = useSearchParams();
-  const accessToken = searchParams.get("code");
-  console.log("accesToken:", accessToken)
-  if (accessToken) {
-    fetch('https://discord.com/api/users/@me', {
-      headers: {
-        authorization: `${accessToken}`,
-      },
-    })
-    .then(result => result.json())
-    .then(response => {
-      const { username, discriminator } = response;
-      console.log(username, discriminator)
-    })
-    .catch(console.error);
-    
+
+  const accessCode = searchParams.get("code");
+
+  useEffect(() => {
+    const authData = JSON.parse(localStorage.getItem("authData") || "{}");
+
+    if (authData.access_token) {
+      setAuthData(authData);
+    } else if (accessCode) {
+      axios
+        .get(`${API_URL}/discord/login`, {
+          params: {
+            code: accessCode,
+          },
+        })
+        .then((response) => {
+          console.log(response);
+          // TODO: Store data in storage and/or context
+          setAuthData(response.data);
+
+          localStorage.setItem("authData", JSON.stringify(response.data));
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  }, [accessCode]);
+
+  useEffect(() => {
+    if (!!authData && !dataLoaded) {
+      setDataLoaded(true);
+
+      axios
+        .get(`${API_URL}/discord/user`, {
+          params: {
+            access_token: authData.access_token,
+            token_type: authData.token_type,
+          },
+        })
+        .then((response) => {
+          console.log(response);
+          const { username, discriminator } = response.data;
+          console.log(`Logged in as ${username}#${discriminator}`);
+          setUserData(response.data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  }, [authData, dataLoaded]);
+
+  if (authData) {
+    return (
+      <div>
+        <h1>Access Code</h1>
+        <p>{accessCode}</p>
+        <h1>Auth Data</h1>
+        <p>{JSON.stringify(authData)}</p>
+        <h1>User Data</h1>
+        <p>{JSON.stringify(userData)}</p>
+      </div>
+    );
   }
+
   return (
     <div>
-      <a href= "https://discord.com/api/oauth2/authorize?client_id=1004206497493946398&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fdiscord&response_type=code&scope=identify%20email%20guilds">
-        <button onClick={() => DiscordOauth()}>log in</button>
+      <a className="btn btn-primary" href={LOGIN_URL}>
+        Discord Login
       </a>
     </div>
-  )
-}
+  );
+};
 
-export default Discord
+export default Discord;
