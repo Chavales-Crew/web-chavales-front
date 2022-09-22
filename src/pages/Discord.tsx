@@ -17,6 +17,7 @@ const Discord = () => {
   const [authData, setAuthData] = useState<AuthData | null>(null);
   const [userData, setUserData] = useState<any>({});
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [isChaval, setIsChaval] = useState(false);
   const [searchParams] = useSearchParams();
 
   const accessCode = searchParams.get("code");
@@ -47,7 +48,7 @@ const Discord = () => {
   }, [accessCode]);
 
   useEffect(() => {
-    if (!!authData && !dataLoaded) {
+    if (authData && !dataLoaded) {
       setDataLoaded(true);
 
       axios
@@ -66,6 +67,21 @@ const Discord = () => {
         .catch((error) => {
           console.error(error);
         });
+
+      axios
+        .get(`${API_URL}/discord/guilds`, {
+          params: {
+            access_token: authData.access_token,
+            token_type: authData.token_type,
+          },
+        })
+        .then((response) => {
+          console.log("isChaval?", response);
+          setIsChaval(response.data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
   }, [authData, dataLoaded]);
 
@@ -78,6 +94,11 @@ const Discord = () => {
         <p>{JSON.stringify(authData)}</p>
         <h1>User Data</h1>
         <p>{JSON.stringify(userData)}</p>
+        {isChaval && dataLoaded ? (
+          <p>Hola {userData.username}!! hemos comprobado que eres un chaval.</p>
+        ) : (
+          <p>Hola {userData.username}, hemos comprobado que no eres un chaval... muere.</p>
+        )}
       </div>
     );
   }
